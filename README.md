@@ -1,4 +1,4 @@
-# PostgreSQL MCP Server Setup Guide
+#postpymcp - PostgreSQL Python MCP Server Setup Guide
 
 ## Prerequisites
 
