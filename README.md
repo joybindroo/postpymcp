@@ -1,6 +1,6 @@
-# postpymcp
+# pyMCP
 
-**postpymcp** is a Python-based **Model Context Protocol (MCP) server** that allows AI tools like **Claude Desktop**, **Visual Studio Code** (**GitHub Copilot**) to safely interact with SQL databases in a **read-only** manner.  
+**pyMCP** is a Python-based **Model Context Protocol (MCP) server** that allows AI tools like **Claude Desktop**, **Visual Studio Code** (**GitHub Copilot**) to safely interact with SQL databases in a **read-only** manner.  
 
 It includes two server scripts:
 
