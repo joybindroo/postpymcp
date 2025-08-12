@@ -1,174 +1,151 @@
-# postpymcp 
-# PostgreSQL Python MCP Server Setup Guide
+# postpymcp
 
-## Prerequisites
+**postpymcp** is a Python-based **Model Context Protocol (MCP) server** that allows AI tools like **Claude Desktop**, **Visual Studio Code** (**GitHub Copilot**) to safely interact with SQL databases in a **read-only** manner.  
 
-1. **Python 3.8+** installed on your system
-2. **PostgreSQL database** accessible
-3. **Claude Desktop** installed
+It includes two server scripts:
 
-## Installation Steps
+- **`postgres_mcp_server.py`** – Optimized for **PostgreSQL** only  
+- **`db_mcp_server.py`** – Multi-database support for **PostgreSQL**, **MySQL**, and **SQLite**
 
-### 1. Create Project Directory
+***
+
+## Features
+
+- ✅ **Read-only SQL enforcement** – Blocks unsafe commands (DELETE, DROP, UPDATE, INSERT)
+- ✅ **SQL injection prevention** – Uses parameterized queries  
+- ✅ **Automatic result limits** – Prevents large/unbounded output  
+- ✅ **Schema discovery** – List tables, columns, and database structure  
+- ✅ **Multi-database support** (`db_mcp_server.py`) – Connects to:
+  - PostgreSQL
+  - MySQL
+  - SQLite
+
+***
+
+## 1. Installation
+
+### Requirements
+- Python **3.8+**
+- For MySQL support: **mysqlclient** or **PyMySQL**
+- For PostgreSQL support: **psycopg2**
+- For SQLite support: built-in with Python
+- Access to the target database (local or remote)
+
+### Setup Steps
 ```bash
-mkdir postgres-mcp-server
-cd postgres-mcp-server
-```
+# Clone the repository
+git clone https://github.com/joybindroo/postpymcp.git
+cd postpymcp
 
-### 2. Create Virtual Environment
-```bash
+# Create virtual environment
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
+source venv/bin/activate       # On Windows: venv\Scripts\activate
 
-### 3. Install Dependencies
-Create a `requirements.txt` file:
-```
-mcp>=0.4.0
-psycopg2-binary>=2.9.0
-pydantic>=2.0.0
-```
-
-Install the dependencies:
-```bash
+# Install dependencies
 pip install -r requirements.txt
 ```
 
-### 4. Save the Server Code
-Save the provided Python code as `postgres_mcp_server.py` in your project directory.
+***
 
-### 5. Make Script Executable (Unix/macOS)
+## 2. Usage
+
+### A. PostgreSQL-only Server
 ```bash
-chmod +x postgres_mcp_server.py
+python postgres_mcp_server.py "postgresql://username:password@localhost:5432/database_name"
 ```
 
-### 6. Test the Server
+- Using environment variable:
 ```bash
-python postgres_mcp_server.py "postgresql://username:password@localhost:5432/your_database"
+export DATABASE_URL="postgresql://username:password@localhost:5432/database_name"
+python postgres_mcp_server.py
 ```
 
-## Configure Claude Desktop
+***
 
-### 1. Locate Claude Desktop Config
-- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-- **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+### B. Multi-Database Server (`PostgreSQL`, `MySQL`, `SQLite`)
+```bash
+# PostgreSQL
+python db_mcp_server.py "postgresql://username:password@localhost:5432/database_name"
 
-### 2. Add MCP Server Configuration
+# MySQL
+python db_mcp_server.py "mysql://username:password@localhost:3306/database_name"
+
+# SQLite (local file)
+python db_mcp_server.py "sqlite:///path/to/database.db"
+```
+
+***
+
+## 3. Integration with Claude Desktop
+
+1. Locate config file:
+   - macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`  
+   - Windows: `%APPDATA%\Claude\claude_desktop_config.json`  
+
+2. Add MCP server entry:
 ```json
 {
   "mcpServers": {
     "postgres": {
       "command": "python",
-      "args": [
-        "/path/to/your/postgres_mcp_server.py",
-        "postgresql://username:password@localhost:5432/your_database"
-      ],
-      "env": {
-        "PATH": "/path/to/your/venv/bin"
-      }
+      "args": ["/path/to/postgres_mcp_server.py", "postgresql://username:password@localhost:5432/dbname"],
+      "env": { "PATH": "/path/to/venv/bin" }
+    },
+    "multi_db": {
+      "command": "python",
+      "args": ["/path/to/db_mcp_server.py", "sqlite:///path/to/database.db"],
+      "env": { "PATH": "/path/to/venv/bin" }
     }
   }
 }
 ```
 
-**Important**: Replace the paths and connection string with your actual values.
+3. **Restart Claude Desktop** for changes to take effect.
 
-### 3. Restart Claude Desktop
-Close and restart Claude Desktop to load the new MCP server.
+***
 
-## Usage Examples
+## 4. Using with Visual Studio Code
 
-Once configured, you can use these commands in Claude Desktop:
+- Open the `postpymcp` folder in VS Code  
+- Ensure **Python extension** is installed  
+- Use the integrated terminal to:
+  - Start Postgres-only MCP server  
+  - Start Multi-DB MCP server  
+- Use Claude's VS Code extension or Copilot Chat to send natural language database queries
 
-### Query Database
-```
-Can you run this query: SELECT * FROM users WHERE created_at > '2024-01-01'
-```
+***
 
-### Describe Tables
-```
-What's the structure of the products table?
-```
+## 5. Using with GitHub Copilot
 
-### Get Sample Data
-```
-Show me a sample of data from the orders table
-```
+- Copilot can help:
+  - Write custom safe SQL queries
+  - Explore schema interactively  
+  - Autogenerate code to connect to the MCP server  
+- Ensure you follow the repository's **read-only** rules
 
-### Explore Schema
-```
-What tables are available in my database?
-```
+***
 
-## Security Features
+## 6. Example Queries
 
-- **Read-only by default**: Dangerous operations (DROP, DELETE, etc.) are blocked
-- **Query limits**: Automatic LIMIT clauses prevent large result sets
-- **Input validation**: SQL injection protection through parameterized queries
-- **Connection pooling**: Efficient database connection management
+- SQL:  
+  ```sql
+  SELECT * FROM customers LIMIT 10;
+  ```
+- Natural language in Claude/Copilot:  
+  - "List all tables in the database"  
+  - "Show me the first 5 rows from the orders table"  
+  - "Describe the columns in the products table"  
 
-## Troubleshooting
+***
 
-### Connection Issues
-1. Verify PostgreSQL is running
-2. Check connection string format
-3. Ensure user has proper permissions
-4. Test connection outside of Claude Desktop first
+## 7. Troubleshooting
 
-### Permission Errors
-```bash
-# Give execute permissions (Unix/macOS)
-chmod +x postgres_mcp_server.py
+- Ensure database is running and accessible  
+- Check `requirements.txt` dependencies are installed  
+- Use correct connection string syntax for your DB  
+- If permission errors occur, check script execute permissions:
+  ```bash
+  chmod +x postgres_mcp_server.py db_mcp_server.py
+  ```
 
-# Check Python path in config
-which python  # Use this path in claude_desktop_config.json
-```
 
-### Dependency Issues
-```bash
-# Reinstall dependencies
-pip install --upgrade -r requirements.txt
-
-# Check MCP version
-pip show mcp
-```
-
-## Advanced Configuration
-
-### Custom Connection Pool
-Modify the `get_connection()` method to use connection pooling:
-
-```python
-from psycopg2 import pool
-
-class PostgreSQLMCPServer:
-    def __init__(self, connection_string: str):
-        self.connection_pool = psycopg2.pool.SimpleConnectionPool(
-            1, 20, connection_string
-        )
-```
-
-### Environment Variables
-Use environment variables for sensitive data:
-
-```python
-import os
-
-connection_string = os.getenv('DATABASE_URL', 'postgresql://localhost:5432/mydb')
-```
-
-### SSL Configuration
-For secure connections:
-```python
-connection_string = "postgresql://user:pass@host:5432/db?sslmode=require"
-```
-
-## Available Tools
-
-1. **query_database**: Execute SELECT queries safely
-2. **describe_table**: Get table structure and indexes
-3. **get_table_sample**: Preview table data
-4. **list_schemas**: Show available schemas
-5. **list_tables**: Show all tables
-
-The server automatically provides schema discovery and safe query execution while preventing dangerous operations.
