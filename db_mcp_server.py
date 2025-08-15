@@ -15,6 +15,9 @@ import sqlite3
 from contextlib import asynccontextmanager
 from urllib.parse import urlparse
 
+# Set default limit for no. of records returned for 'SELECT' queries
+QRY_LIMIT=500
+
 # Database drivers
 try:
     import psycopg2
@@ -103,7 +106,7 @@ class PostgreSQLAdapter(DatabaseAdapter):
             cursor_factory=RealDictCursor
         )
     
-    def execute_query(self, query: str, params=None, limit: int = 100):
+    def execute_query(self, query: str, params=None, limit: int = QRY_LIMIT):
         """Execute a PostgreSQL query"""
         query_upper = query.upper().strip()
         if 'LIMIT' not in query_upper and query_upper.startswith('SELECT'):
@@ -714,4 +717,5 @@ async def main():
         )
 
 if __name__ == "__main__":
+
     asyncio.run(main())
