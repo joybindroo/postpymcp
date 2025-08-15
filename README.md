@@ -35,7 +35,7 @@ It includes two server scripts:
 ```bash
 # Clone the repository
 git clone https://github.com/joybindroo/postpymcp.git
-cd postpymcp
+cd pyMCP
 
 # Create virtual environment
 python -m venv venv
@@ -106,11 +106,11 @@ python db_mcp_server.py "sqlite:///path/to/database.db"
 
 ## 4. Using with Visual Studio Code
 
-- Open the `postpymcp` folder in VS Code  
+- Open the `pymcp` folder in VS Code  
 - Ensure **Python extension** is installed  
 - Use the integrated terminal to:
   - Start Postgres-only MCP server  
-  - Start Multi-DB MCP server  
+  - Start pyMCP server  
 - Use Claude's VS Code extension or Copilot Chat to send natural language database queries
 
 ***
@@ -120,8 +120,6 @@ python db_mcp_server.py "sqlite:///path/to/database.db"
 - Copilot can help:
   - Write custom safe SQL queries
   - Explore schema interactively  
-  - Autogenerate code to connect to the MCP server  
-- Ensure you follow the repository's **read-only** rules
 
 ***
 
