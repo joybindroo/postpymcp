@@ -111,7 +111,7 @@ python db_mcp_server.py "sqlite:///path/to/database.db"
 - Use the integrated terminal to:
   - Start Postgres-only MCP server  
   - Start pyMCP server  
-- Use Claude's VS Code extension or Copilot Chat to send natural language database queries
+- Use VS Code Copilot Chat to talk with your db.
 
 ***
 
